@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import EncryptedCoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -161,22 +162,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          error conditions that could cause the creation of the store to fail.
         */
         let container = NSPersistentContainer(name: "Sesion8")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                 
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
+        let storeDirectory = FileManager.default.urls(for:.libraryDirectory, in: .userDomainMask).first!
+        let url = storeDirectory.appendingPathComponent("Application Support/Sesion8.sqlite")
+        //
+        let options = [ EncryptedStorePassphraseKey : "123",
+                        EncryptedStoreDatabaseLocation: url,
+                        EncryptedStoreFileManagerOption :EncryptedStoreFileManager.default()]
+        as [String : Any]
+        do {
+            let description = try EncryptedStore.makeDescription(options: options, configuration:nil)
+            container.persistentStoreDescriptions = [description]
+            container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+                if let error = error as NSError? {
+                    // Replace this implementation with code to handle the error appropriately.
+                    // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                    
+                    /*
+                     Typical reasons for an error here include:
+                     * The parent directory does not exist, cannot be created, or disallows writing.
+                     * The persistent store is not accessible, due to permissions or data protection when the device is locked.
+                     * The device is out of space.
+                     * The store could not be migrated to the current model version.
+                     Check the error message to determine what the actual problem was.
+                     */
+                    fatalError("Unresolved error \(error), \(error.userInfo)")
+                }
+            })
+        }
+        catch {
+            print ("error " + error.localizedDescription)
+        }
         return container
     }()
 
