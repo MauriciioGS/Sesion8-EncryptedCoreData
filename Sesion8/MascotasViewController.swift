@@ -9,18 +9,17 @@ import UIKit
 
 class MascotasViewController: UIViewController, UITableViewDelegate, UITableViewDataSource  {
     var datos = [Mascota]()
+    var dataManager: DataManager?
     @IBOutlet weak var segmented: UISegmentedControl!
     @IBOutlet weak var tableView: UITableView!
     
     @IBAction func filtro () {
-        let appDel = UIApplication.shared.delegate as! AppDelegate
         let index = segmented.selectedSegmentIndex
         if index == 3 {
-            datos = appDel.todasLasMascotas()
-        }
-        else {
+            datos = dataManager!.todasLasMascotas()
+        } else {
             if let tipo = segmented.titleForSegment(at: index) {
-                datos = appDel.todasLasMascotasTipo(tipo)
+                datos = dataManager!.todasLasMascotasTipo(tipo)
             }
         }
         // siempre que se cambie el data source de la tabla...
@@ -32,6 +31,8 @@ class MascotasViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.delegate = self
         tableView.dataSource = self
         segmented.selectedSegmentIndex = 3
+        // Create instance of our DataManager
+        dataManager = DataManager()
     }
     
     override func viewWillLayoutSubviews() {
@@ -43,8 +44,7 @@ class MascotasViewController: UIViewController, UITableViewDelegate, UITableView
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDel = UIApplication.shared.delegate as! AppDelegate
-        datos = appDel.todasLasMascotas()
+        datos = dataManager!.todasLasMascotas()
     }
 
     // MARK: - Table view data source
@@ -77,7 +77,6 @@ class MascotasViewController: UIViewController, UITableViewDelegate, UITableView
 
     // Override to support editing the table view.
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let appDel = UIApplication.shared.delegate as! AppDelegate
         if editingStyle == .delete {
             // BORRAR UN OBJETO
             /*
@@ -97,10 +96,9 @@ class MascotasViewController: UIViewController, UITableViewDelegate, UITableView
             
             // Actualizar la relación del objeto con otro objeto:
             let mascota3 = datos[indexPath.row]
-            mascota3.persona = appDel.nuevaPersona()
-            
+            mascota3.persona = dataManager!.nuevaPersona()
             // después de cualquier modificacion a la BD hay que salvar el context
-            appDel.saveContext()
+            dataManager!.saveContext()
             // volvemos a dibujar la tabla
             tableView.reloadData()
         }

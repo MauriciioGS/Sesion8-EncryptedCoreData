@@ -8,6 +8,7 @@
 import UIKit
 
 class PersonasTableViewController: UITableViewController, UISearchResultsUpdating {
+    var dataManager: DataManager?
     var datos = [Persona]()
     // El componente UISearchController es el que permite agregar una barra de busqueda a un tableview
     // se inicializa con "nil" para indicar que no se utilizará un controller distinto o sea que la búsqueda se realizará sobre la misma tabla
@@ -25,6 +26,8 @@ class PersonasTableViewController: UITableViewController, UISearchResultsUpdatin
     // configuración inicial de la barra de búsqueda
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Create instance of our DataManager
+        dataManager = DataManager()
         // define el objeto que se va a encargar de los eventos de la barra de búsqueda, debe implementar el protocolo UISearchResultsUpdating
         buscador.searchResultsUpdater = self
         // si se setea a true, el tableview se deshabilita cuando se está usando el buscador
@@ -38,7 +41,7 @@ class PersonasTableViewController: UITableViewController, UISearchResultsUpdatin
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         let ad = UIApplication.shared.delegate as! AppDelegate
-        datos = ad.todasLasPersonas()
+        datos = dataManager!.todasLasPersonas()
     }
     
     // MARK: - Table view data source
